@@ -1,0 +1,7 @@
+pyrogram
+telegraph
+tgcrypto
+hachoir
+pillow
+asyncio
+pySmartDL
