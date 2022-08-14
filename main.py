@@ -80,7 +80,7 @@ async def set_wm(bot, message) -> None:
         del DB[str(message.from_user.id)]
     except:
         pass
-    await message.reply_text("Now using default watermark"))
+    await message.reply_text("Now using default watermark")
 
 @jvbot.on_message(filters.command(["getw","get_watermark"]))
 async def get_wm(bot, message) -> None:
