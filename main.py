@@ -47,13 +47,13 @@ water_mark = os.environ.get("WATERMARK_TEXT","Jigar")
 @jvbot.on_message(~filters.sticker & (filters.regex(pattern=".*http.*") | filters.media))
 async def telegraph(bot, message) -> None:
     msg_ = await message.reply_text("Please wait ....")
-    list_of_links = await main_func(bot, message,msg_)
-    if list_of_links is None:
+    list_of_imgs = await main_func(bot, message,msg_)
+    if list_of_imgs is None:
         return await message.reply_text("Failed to download")
     else:
-        for image in list_of_links:
-            await message.reply_photo(image)
-            os.remove(image)
+        jv_image = await create_collage(list_of_imgs)
+        await message.reply_photo(jv_image)
+        os.remove(jv_image)
     await msg_.delete()
 
 @jvbot.on_message(filters.command(["log","logs"]))
@@ -259,6 +259,36 @@ async def place_watermark(ss_img, output, wt_text):
     os.remove(ss_img)
     return output
 
+async def create_collage(listofimages, width=1800, height=1200,):
+    cols = 3
+    rows = 2
+    out_file = os.path.join(DOWNLOAD_DIRECTORY, f"{str(time.time())}.jpg")
+    thumbnail_width = width//cols
+    thumbnail_height = height//rows
+    size = thumbnail_width, thumbnail_height
+    new_im = Image.new('RGB', (width, height))
+    ims = []
+    for p in listofimages:
+        im = Image.open(p)
+        im.thumbnail(size)
+        ims.append(im)
+    i = 0
+    x = 0
+    y = 0
+    for col in range(cols):
+        for row in range(rows):
+            new_im.paste(ims[i], (x, y))
+            i += 1
+            y += thumbnail_height
+        x += thumbnail_width
+        y = 0
+    new_im.save(out_file)
+    for x in listofimages:
+        try:
+            os.remove(x)
+        except:
+            pass
+    return out_file if exists(out_file) else None
 
 async def progress_for_pyrogram(
     current,
